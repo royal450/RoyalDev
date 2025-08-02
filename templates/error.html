@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Reel Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="max-w-md mx-auto px-4">
+        <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+            {% if is_home %}
+            <!-- Home Page -->
+            <div class="mb-6">
+                <i class="fab fa-instagram text-6xl text-pink-500 mb-4"></i>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ error_title }}</h1>
+                <p class="text-gray-600 mb-6">{{ error_message }}</p>
+                
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h3 class="font-semibold text-gray-800 mb-2">How to use:</h3>
+                    <ol class="text-sm text-gray-600 text-left space-y-1">
+                        <li>1. Copy Instagram reel URL</li>
+                        <li>2. Replace REEL_ID with the reel ID</li>
+                        <li>3. Add igsh parameter if available</li>
+                        <li>4. Visit the URL to download</li>
+                    </ol>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p class="text-xs text-blue-800 font-mono break-all">
+                        /reel/DMptLnLsGGW/?igsh=Zm54dDhsNW10dW1z==
+                    </p>
+                </div>
+            </div>
+            {% else %}
+            <!-- Error Page -->
+            <div class="mb-6">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
+                <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ error_title }}</h1>
+                <p class="text-gray-600 mb-6">{{ error_message }}</p>
+                
+                <a href="/" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                    <i class="fas fa-home mr-2"></i>
+                    Go Home
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

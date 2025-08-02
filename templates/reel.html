@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Reel Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .loading {
+            display: none;
+        }
+        .loading.active {
+            display: inline-block;
+        }
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                    <i class="fab fa-instagram text-pink-500"></i>
+                    Instagram Reel Downloader
+                </h1>
+                <p class="text-gray-600">Download Instagram Reels as Video or Audio</p>
+            </div>
+
+            <!-- Reel Card -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <!-- Thumbnail -->
+                {% if reel_info.thumbnail %}
+                <div class="aspect-video bg-gray-200 relative">
+                    <img src="{{ reel_info.thumbnail }}" 
+                         alt="Reel Thumbnail" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+                        <i class="fas fa-play text-white text-4xl opacity-80"></i>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Content -->
+                <div class="p-6">
+                    <!-- Title -->
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">
+                        {{ reel_info.title or 'Instagram Reel' }}
+                    </h2>
+
+                    <!-- Metadata -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-sm text-gray-600">
+                        {% if reel_info.duration %}
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>{{ "%.0f"|format(reel_info.duration) }}s</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reel_info.view_count %}
+                        <div class="flex items-center">
+                            <i class="fas fa-eye mr-2"></i>
+                            <span>{{ "{:,}".format(reel_info.view_count) }} views</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reel_info.like_count %}
+                        <div class="flex items-center">
+                            <i class="fas fa-heart mr-2"></i>
+                            <span>{{ "{:,}".format(reel_info.like_count) }} likes</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reel_info.uploader %}
+                        <div class="flex items-center">
+                            <i class="fas fa-user mr-2"></i>
+                            <span>{{ reel_info.uploader }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Download Buttons -->
+                    <div class="space-y-3">
+                        <!-- Video Download -->
+                        <button onclick="downloadMedia('video')" 
+                                id="video-btn"
+                                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-video mr-2"></i>
+                            <span id="video-text">Download Video (MP4)</span>
+                            <div class="loading ml-2" id="video-loading">
+                                <i class="fas fa-spinner animate-spin"></i>
+                            </div>
+                        </button>
+
+                        <!-- Audio Download -->
+                        <button onclick="downloadMedia('audio')" 
+                                id="audio-btn"
+                                class="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center">
+                            <i class="fas fa-music mr-2"></i>
+                            <span id="audio-text">Download Audio (MP3)</span>
+                            <div class="loading ml-2" id="audio-loading">
+                                <i class="fas fa-spinner animate-spin"></i>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Description -->
+                    {% if reel_info.description %}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h3 class="font-semibold text-gray-800 mb-2">Description</h3>
+                        <p class="text-gray-600 text-sm">{{ reel_info.description[:200] }}{% if reel_info.description|length > 200 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center mt-8 text-gray-500 text-sm">
+                <p>Made with <i class="fas fa-heart text-red-500"></i> for seamless Instagram downloads</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadMedia(type) {
+            const btn = document.getElementById(type + '-btn');
+            const text = document.getElementById(type + '-text');
+            const loading = document.getElementById(type + '-loading');
+            
+            // Show loading state
+            btn.classList.add('btn-disabled');
+            btn.disabled = true;
+            text.textContent = 'Preparing download...';
+            loading.classList.add('active');
+            
+            // Construct download URL
+            const downloadUrl = `/download/${type}/{{ reel_id }}{% if igsh %}?igsh={{ igsh }}{% endif %}`;
+            
+            // Create hidden link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Reset button state after a delay
+            setTimeout(() => {
+                btn.classList.remove('btn-disabled');
+                btn.disabled = false;
+                text.textContent = type === 'video' ? 'Download Video (MP4)' : 'Download Audio (MP3)';
+                loading.classList.remove('active');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
