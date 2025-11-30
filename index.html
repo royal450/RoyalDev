@@ -1,1 +1,3166 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Theme (Blue) */
+            --primary-color: #4361ee;
+            --primary-color-rgb: 67, 97, 238;
+            --secondary-color: #3a0ca3;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #2dc653;
+            --danger-color: #e63946;
+            --warning-color: #ff9f1c;
+            --info-color: #4cc9f0;
+            --sent-message-color: #DCF8C6;
+            --received-message-color: #FFFFFF;
+            --chat-bg: #f5f7fa;
+            --input-bg: #f5f7fa;
+            --text-color: #333;
+            --border-color: #eee;
+            --header-gradient: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            --body-gradient: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+        /* Dark Theme */
+        .theme-dark {
+            --primary-color: #BB86FC;
+            --primary-color-rgb: 187, 134, 252;
+            --secondary-color: #6200EE;
+            --accent-color: #03DAC5;
+            --light-color: #333333;
+            --dark-color: #f8f9fa;
+            --sent-message-color: #424242;
+            --received-message-color: #333333;
+            --chat-bg: #121212;
+            --input-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+            --header-gradient: linear-gradient(90deg, #121212, #000000);
+            --body-gradient: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+        }
+
+        /* Night Blue Theme */
+        .theme-night-blue {
+            --primary-color: #3498db;
+            --primary-color-rgb: 52, 152, 219;
+            --secondary-color: #2980b9;
+            --accent-color: #1abc9c;
+            --light-color: #f8f9fa;
+            --dark-color: #2c3e50;
+            --sent-message-color: #34495e;
+            --received-message-color: #2c3e50;
+            --chat-bg: #1a2530;
+            --input-bg: #2c3e50;
+            --text-color: #ecf0f1;
+            --border-color: #34495e;
+            --header-gradient: linear-gradient(90deg, #2980b9, #2c3e50);
+            --body-gradient: linear-gradient(135deg, #2c3e50 0%, #1a2530 100%);
+        }
+
+        /* Forest Theme */
+        .theme-forest {
+            --primary-color: #2ecc71;
+            --primary-color-rgb: 46, 204, 113;
+            --secondary-color: #27ae60;
+            --accent-color: #f1c40f;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sent-message-color: #27ae60;
+            --received-message-color: #f8f9fa;
+            --chat-bg: #f0f8f0;
+            --input-bg: #f0f8f0;
+            --text-color: #333;
+            --border-color: #ddd;
+            --header-gradient: linear-gradient(90deg, #27ae60, #2ecc71);
+            --body-gradient: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+
+        /* Sunset Theme */
+        .theme-sunset {
+            --primary-color: #e74c3c;
+            --primary-color-rgb: 231, 76, 60;
+            --secondary-color: #c0392b;
+            --accent-color: #f39c12;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --sent-message-color: #e67e22;
+            --received-message-color: #f8f9fa;
+            --chat-bg: #fff5f5;
+            --input-bg: #fff5f5;
+            --text-color: #333;
+            --border-color: #ffecec;
+            --header-gradient: linear-gradient(90deg, #e74c3c, #c0392b);
+            --body-gradient: linear-gradient(135deg, #e74c3c 0%, #f39c12 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--body-gradient);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: gradientShift 10s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+            25% { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+            50% { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+            75% { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+            100% { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 50px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideUp 0.8s ease;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s ease infinite;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .login-logo span {
+            font-size: 60px;
+            color: white;
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .password-input-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 18px 50px 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 16px;
+            transition: all 0.3s;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .password-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .toggle-password:hover {
+            color: #667eea;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+        .warning-text {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #e63946;
+            font-weight: 500;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chat-header {
+            background: var(--header-gradient);
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .online-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .online-status.online {
+            background-color: var(--success-color);
+        }
+
+        .typing-animation {
+            display: none;
+            margin-left: 5px;
+        }
+
+        .typing-animation span {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: white;
+            margin: 0 1px;
+            opacity: 0.7;
+            animation: typing 1.5s infinite;
+        }
+
+        .typing-animation span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-animation span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-3px);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 15px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            touch-action: pan-y;
+            transition: transform 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+
+        .message-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .message-bubble {
+            padding: 12px 15px;
+            border-radius: 18px;
+            position: relative;
+            word-break: break-word;
+            max-width: calc(100% - 40px);
+        }
+
+        .message.received .message-bubble {
+            background-color: var(--received-message-color);
+            color: var(--text-color);
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .message.sent .message-bubble {
+            background-color: var(--sent-message-color);
+            color: var(--text-color);
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-content {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .reply-preview {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--primary-color);
+            font-size: 12px;
+            color: #666;
+        }
+
+        .reply-preview-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 2px;
+        }
+
+        .reply-preview-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .message-footer {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 5px;
+            font-size: 11px;
+            opacity: 0.7;
+            gap: 5px;
+        }
+
+        .message-time {
+            margin-right: 5px;
+        }
+
+        .message-status {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .status-icon {
+            font-size: 16px;
+        }
+
+        .status-checkmark {
+            color: #999;
+        }
+
+        .status-checkmark.read {
+            color: #34B7F1;
+        }
+
+        .status-checkmark.double {
+            margin-left: -8px;
+        }
+
+        .message-options {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            cursor: pointer;
+            background-color: rgba(255,255,255,0.5);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .message:hover .message-options {
+            opacity: 1;
+        }
+
+        .message-options-menu {
+            position: absolute;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 5px 0;
+            z-index: 100;
+            display: none;
+            min-width: 150px;
+        }
+
+        .message-options-menu.active {
+            display: block;
+        }
+
+        .message-option-item {
+            padding: 8px 15px;
+            font-size: 14px;
+            color: var(--text-color);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message-option-item:hover {
+            background: #f5f5f5;
+        }
+
+        .message-option-item.delete {
+            color: var(--danger-color);
+        }
+
+        .message-option-item.block {
+            color: var(--danger-color);
+        }
+
+        /* Swipe to reply */
+        .swipe-reply-icon {
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: var(--primary-color);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .message.sent .swipe-reply-icon {
+            left: auto;
+            right: -50px;
+        }
+
+        .message.swiping .swipe-reply-icon {
+            opacity: 1;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            background-color: white;
+        }
+
+        .reply-container {
+            display: none;
+            background: rgba(var(--primary-color-rgb), 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .reply-container.active {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .reply-info {
+            flex: 1;
+        }
+
+        .reply-label {
+            font-size: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .reply-text {
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+        }
+
+        .close-reply {
+            background: transparent;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--input-bg);
+            border-radius: 25px;
+            padding: 8px 15px;
+        }
+
+        .input-action {
+            background: transparent;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .input-action:hover {
+            background-color: rgba(0,0,0,0.05);
+            color: var(--primary-color);
+        }
+
+        .input-action.recording {
+            color: var(--danger-color);
+            animation: pulse 1.5s infinite;
+        }
+
+        .chat-input-field {
+            flex: 1;
+            border: none;
+            background-color: transparent;
+            font-size: 14px;
+            padding: 10px 0;
+            max-height: 120px;
+            resize: none;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .voice-input {
+            display: none;
+        }
+
+        /* Upload progress */
+        .upload-progress {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            background-color: rgba(var(--primary-color-rgb), 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .upload-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: var(--primary-color);
+        }
+
+        .progress {
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        /* Media styles */
+        .message-media {
+            max-width: 250px;
+            margin-top: 5px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .message-media img {
+            width: 100%;
+            border-radius: 10px;
+            display: block;
+        }
+
+        /* Voice message */
+        .voice-message {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .voice-player {
+            width: 200px;
+            height: 40px;
+        }
+
+        .voice-duration {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .record-animation {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: 10px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        .recording-time {
+            font-size: 14px;
+            color: var(--danger-color);
+        }
+
+        /* System message */
+        .system-message {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 12px;
+            color: #666;
+            background-color: rgba(0,0,0,0.05);
+            padding: 8px 15px;
+            border-radius: 20px;
+            align-self: center;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Welcome message */
+        .welcome-message {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            align-self: center;
+            max-width: 90%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .welcome-message h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .welcome-message p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Emoji Picker */
+        .emoji-picker {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 10px;
+            display: none;
+            width: 280px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .emoji-category {
+            margin-bottom: 10px;
+        }
+
+        .emoji-category-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .emoji-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 20px;
+            user-select: none;
+        }
+
+        .emoji-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* User profile modal */
+        .profile-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .profile-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        }
+
+        .profile-header {
+            background: var(--header-gradient);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .profile-picture-container {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            border: 3px solid white;
+            overflow: hidden;
+            position: relative;
+            background-color: #e0e0e0;
+        }
+
+        .profile-picture {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .change-picture {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            font-size: 12px;
+            padding: 5px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .profile-body {
+            padding: 20px;
+        }
+
+        .profile-input-group {
+            margin-bottom: 15px;
+        }
+
+        .profile-input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .profile-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 20px 20px;
+            gap: 10px;
+        }
+
+        .profile-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .save-button {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .cancel-button {
+            background: #eee;
+            color: #333;
+        }
+
+        .avatar-selection {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .avatar-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .avatar-option:hover, .avatar-option.selected {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+
+        .avatar-option img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .custom-upload {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            color: #555;
+            font-size: 24px;
+        }
+
+        /* Theme selector */
+        .theme-selector {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            z-index: 1000;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 15px;
+            width: 200px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .theme-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+        }
+
+        .theme-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .theme-color {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .theme-name {
+            font-size: 14px;
+        }
+
+        .theme-default .theme-color {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        }
+
+        .theme-dark .theme-color {
+            background: linear-gradient(135deg, #121212, #333);
+        }
+
+        .theme-night-blue .theme-color {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+        }
+
+        .theme-forest .theme-color {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .theme-sunset .theme-color {
+            background: linear-gradient(135deg, #e74c3c, #f39c12);
+        }
+
+        /* Blocked users modal */
+        .blocked-users-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .blocked-users-content {
+            background-color: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+        }
+
+        .blocked-users-header {
+            background: var(--header-gradient);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .blocked-users-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+
+        .blocked-users-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .blocked-users-empty {
+            padding: 30px;
+            text-align: center;
+            color: #666;
+        }
+
+        .blocked-user-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .blocked-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+
+        .blocked-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blocked-user-info {
+            flex: 1;
+        }
+
+        .blocked-user-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .blocked-user-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .unblock-button {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .unblock-button:hover {
+            opacity: 0.9;
+        }
+
+        /* Three Dots Menu */
+        .three-dot-menu {
+            position: fixed;
+            top: 70px;
+            right: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+            z-index: 2000;
+            min-width: 200px;
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .three-dot-item {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .three-dot-item:last-child {
+            border-bottom: none;
+        }
+
+        .three-dot-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .three-dot-icon {
+            color: var(--primary-color);
+            width: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .three-dot-text {
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        .three-dot-item.danger {
+            color: var(--danger-color);
+        }
+
+        .three-dot-item.danger .three-dot-icon {
+            color: var(--danger-color);
+        }
+
+        .three-dot-item.danger .three-dot-text {
+            color: var(--danger-color);
+        }
+
+        /* Responsive design */
+        @media (max-width: 576px) {
+            .chat-header {
+                padding: 10px;
+            }
+
+            .chat-messages {
+                padding: 15px;
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+            .message-avatar {
+                width: 35px;
+                height: 35px;
+                margin: 0 5px;
+            }
+
+            .input-container {
+                padding: 5px 10px;
+            }
+
+            .emoji-picker {
+                left: 0;
+                width: 100%;
+                border-radius: 0;
+                bottom: 70px;
+            }
+
+            .theme-selector {
+                right: 0;
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .three-dot-menu {
+                right: 0;
+                width: 200px;
+                border-radius: 10px 0 0 10px;
+            }
+        }
+
+        /* Prevent text selection */
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-container">
+            <div class="login-logo">
+                <span class="material-icons">lock</span>
+            </div>
+            <h1 class="login-title">Secure Chat</h1>
+            <p class="login-subtitle">Enter your password to continue</p>
+            <div class="password-input-container">
+                <input type="password" class="password-input" id="passwordInput" placeholder="Enter password">
+                <span class="material-icons toggle-password" id="togglePassword">visibility</span>
+            </div>
+            <button class="login-button" id="loginButton">Unlock</button>
+            <p class="warning-text">⚠️ One wrong attempt will clear all data!</p>
+        </div>
+    </div>
+
+    <div class="chat-container" style="display: none;" id="chatContainer">
+        <div class="chat-header">
+            <div class="header-title">
+                <div class="logo" id="profilePic">
+                    <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=RT" alt="Profile" id="userAvatar">
+                </div>
+                <div>
+                    <h1 class="title">🧑‍💻_RoYaL Dev_🧑‍💻</h1>
+                    <p class="subtitle">
+                        <span class="online-status online"></span>
+                        <span id="statusText">Online</span>
+                        <div class="typing-animation" id="typingIndicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn" id="threeDotsBtn" title="Menu">
+                    <span class="material-icons">more_vert</span>
+                </button>
+                <button class="header-btn" id="refreshBtn" title="Refresh Chat">
+                    <span class="material-icons">refresh</span>
+                </button>
+                <button class="header-btn" id="exitBtn" title="Exit Chat">
+                    <span class="material-icons">logout</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <!-- Messages will appear here -->
+        </div>
+
+        <div class="chat-input">
+            <div class="upload-progress" id="uploadProgress">
+                <div class="upload-header">
+                    <span>Uploading file...</span>
+                    <span id="uploadPercent">0%</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-primary" id="uploadProgressBar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="reply-container" id="replyContainer">
+                <div class="reply-info">
+                    <div class="reply-label">Replying to <span id="replyToName"></span></div>
+                    <div class="reply-text" id="replyToText"></div>
+                </div>
+                <button class="close-reply" id="closeReply">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+
+            <div class="input-container">
+                <button class="input-action" id="emojiBtn" title="Emoji">
+                    <span class="material-icons">sentiment_satisfied_alt</span>
+                </button>
+
+                <button class="input-action" id="attachBtn" title="Attach File">
+                    <span class="material-icons">attach_file</span>
+                </button>
+
+                <button class="input-action" id="voiceBtn" title="Voice Message">
+                    <span class="material-icons">mic</span>
+                </button>
+
+                <input type="file" id="fileInput" class="file-input" accept="image/*">
+
+                <textarea class="chat-input-field" id="messageInput" placeholder="Type a message..." rows="1"></textarea>
+
+                <button class="send-btn" id="sendBtn" title="Send Message">
+                    <span class="material-icons">send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+        <div class="profile-content">
+            <div class="profile-header">
+                <button class="profile-close" id="profileClose">
+                    <span class="material-icons">close</span>
+                </button>
+                <div class="profile-picture-container">
+                    <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=RT" alt="Profile" class="profile-picture" id="profilePicture">
+                    <div class="change-picture" id="changePicture">Change Picture</div>
+                </div>
+                <h3>Edit Profile</h3>
+            </div>
+            <div class="profile-body">
+                <div class="profile-input-group">
+                    <label for="displayName">Display Name</label>
+                    <input type="text" id="displayName" class="profile-input" placeholder="Your display name">
+                </div>
+                <div class="profile-input-group">
+                    <label for="statusMessage">Status Message</label>
+                    <input type="text" id="statusMessage" class="profile-input" placeholder="Your status">
+                </div>
+                <div class="profile-input-group">
+                    <label>Choose Avatar</label>
+                    <div class="avatar-selection" id="avatarSelection">
+                        <div class="avatar-option" data-seed="RT">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=RT" alt="Avatar">
+                        </div>
+                        <div class="avatar-option" data-seed="John">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=John" alt="Avatar">
+                        </div>
+                        <div class="avatar-option" data-seed="Alex">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Alex" alt="Avatar">
+                        </div>
+                        <div class="avatar-option" data-seed="Maria">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Maria" alt="Avatar">
+                        </div>
+                        <div class="avatar-option" data-seed="Sophie">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Sophie" alt="Avatar">
+                        </div>
+                        <div class="avatar-option" data-seed="Mike">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Mike" alt="Avatar">
+                        </div>
+                        <div class="avatar-option" data-seed="Emma">
+                            <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Emma" alt="Avatar">
+                        </div>
+                        <div class="avatar-option custom-upload" id="customUpload">
+                            <span class="material-icons">add</span>
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none">
+            </div>
+            <div class="profile-actions">
+                <button class="profile-button cancel-button" id="cancelProfile">Cancel</button>
+                <button class="profile-button save-button" id="saveProfile">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emoji Picker -->
+    <div class="emoji-picker" id="emojiPicker">
+        <div class="emoji-category">
+            <div class="emoji-category-title">Smileys & Emotion</div>
+            <div class="emoji-grid">
+                <div class="emoji-item">😀</div>
+                <div class="emoji-item">😃</div>
+                <div class="emoji-item">😄</div>
+                <div class="emoji-item">😁</div>
+                <div class="emoji-item">😆</div>
+                <div class="emoji-item">😅</div>
+                <div class="emoji-item">😂</div>
+                <div class="emoji-item">🤣</div>
+                <div class="emoji-item">😊</div>
+                <div class="emoji-item">😇</div>
+                <div class="emoji-item">🙂</div>
+                <div class="emoji-item">🙃</div>
+                <div class="emoji-item">😉</div>
+                <div class="emoji-item">😌</div>
+                <div class="emoji-item">😍</div>
+                <div class="emoji-item">🥰</div>
+                <div class="emoji-item">😘</div>
+                <div class="emoji-item">😗</div>
+                <div class="emoji-item">😙</div>
+                <div class="emoji-item">😚</div>
+                <div class="emoji-item">😋</div>
+            </div>
+        </div>
+        <div class="emoji-category">
+            <div class="emoji-category-title">People & Body</div>
+            <div class="emoji-grid">
+                <div class="emoji-item">👋</div>
+                <div class="emoji-item">🤚</div>
+                <div class="emoji-item">🖐️</div>
+                <div class="emoji-item">✋</div>
+                <div class="emoji-item">🖖</div>
+                <div class="emoji-item">👌</div>
+                <div class="emoji-item">🤌</div>
+                <div class="emoji-item">🤏</div>
+                <div class="emoji-item">✌️</div>
+                <div class="emoji-item">🤞</div>
+                <div class="emoji-item">🤟</div>
+                <div class="emoji-item">🤘</div>
+                <div class="emoji-item">🤙</div>
+                <div class="emoji-item">👈</div>
+                <div class="emoji-item">👉</div>
+                <div class="emoji-item">👆</div>
+                <div class="emoji-item">👇</div>
+                <div class="emoji-item">☝️</div>
+                <div class="emoji-item">👍</div>
+                <div class="emoji-item">👎</div>
+                <div class="emoji-item">✊</div>
+            </div>
+        </div>
+        <div class="emoji-category">
+            <div class="emoji-category-title">Animals & Nature</div>
+            <div class="emoji-grid">
+                <div class="emoji-item">🐶</div>
+                <div class="emoji-item">🐱</div>
+                <div class="emoji-item">🐭</div>
+                <div class="emoji-item">🐹</div>
+                <div class="emoji-item">🐰</div>
+                <div class="emoji-item">🦊</div>
+                <div class="emoji-item">🐻</div>
+                <div class="emoji-item">🐼</div>
+                <div class="emoji-item">🐨</div>
+                <div class="emoji-item">🐯</div>
+                <div class="emoji-item">🦁</div>
+                <div class="emoji-item">🐮</div>
+                <div class="emoji-item">🐷</div>
+                <div class="emoji-item">🐸</div>
+                <div class="emoji-item">🐵</div>
+                <div class="emoji-item">🐔</div>
+                <div class="emoji-item">🐧</div>
+                <div class="emoji-item">🐦</div>
+                <div class="emoji-item">🦅</div>
+                <div class="emoji-item">🦆</div>
+                <div class="emoji-item">🦉</div>
+            </div>
+        </div>
+        <div class="emoji-category">
+            <div class="emoji-category-title">Food & Drink</div>
+            <div class="emoji-grid">
+                <div class="emoji-item">🍏</div>
+                <div class="emoji-item">🍎</div>
+                <div class="emoji-item">🍐</div>
+                <div class="emoji-item">🍊</div>
+                <div class="emoji-item">🍋</div>
+                <div class="emoji-item">🍌</div>
+                <div class="emoji-item">🍉</div>
+                <div class="emoji-item">🍇</div>
+                <div class="emoji-item">🍓</div>
+                <div class="emoji-item">🫐</div>
+                <div class="emoji-item">🍈</div>
+                <div class="emoji-item">🍒</div>
+                <div class="emoji-item">🍑</div>
+                <div class="emoji-item">🥭</div>
+                <div class="emoji-item">🍍</div>
+                <div class="emoji-item">🥥</div>
+                <div class="emoji-item">🥝</div>
+                <div class="emoji-item">🍅</div>
+                <div class="emoji-item">🍆</div>
+                <div class="emoji-item">🥑</div>
+                <div class="emoji-item">🌭</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocked Users Modal -->
+    <div class="blocked-users-modal" id="blockedUsersModal">
+        <div class="blocked-users-content">
+            <div class="blocked-users-header">
+                <button class="blocked-users-close" id="blockedUsersClose">
+                    <span class="material-icons">close</span>
+                </button>
+                <h3>Blocked Users</h3>
+            </div>
+            <div id="blockedUsersList" class="blocked-users-list">
+                <div class="blocked-users-empty">No blocked users</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three Dots Menu -->
+    <div class="three-dot-menu" id="threeDotsMenu">
+        <div class="three-dot-item" id="themeMenuItem">
+            <div class="three-dot-icon">
+                <span class="material-icons">palette</span>
+            </div>
+            <div class="three-dot-text">Change Theme</div>
+        </div>
+        <div class="three-dot-item" id="profileMenuItem">
+            <div class="three-dot-icon">
+                <span class="material-icons">person</span>
+            </div>
+            <div class="three-dot-text">Edit Profile</div>
+        </div>
+        <div class="three-dot-item" id="blockedUsersMenuItem">
+            <div class="three-dot-icon">
+                <span class="material-icons">block</span>
+            </div>
+            <div class="three-dot-text">Blocked Users</div>
+        </div>
+        <div class="three-dot-item danger" id="clearChatMenuItem">
+            <div class="three-dot-icon">
+                <span class="material-icons">delete_sweep</span>
+            </div>
+            <div class="three-dot-text">Clear All Messages</div>
+        </div>
+    </div>
+
+    <!-- Theme Selector -->
+    <div class="theme-selector" id="themeSelector">
+        <div class="theme-option theme-default" data-theme="default">
+            <div class="theme-color"></div>
+            <div class="theme-name">Default</div>
+        </div>
+        <div class="theme-option theme-dark" data-theme="dark">
+            <div class="theme-color"></div>
+            <div class="theme-name">Dark</div>
+        </div>
+        <div class="theme-option theme-night-blue" data-theme="night-blue">
+            <div class="theme-color"></div>
+            <div class="theme-name">Night Blue</div>
+        </div>
+        <div class="theme-option theme-forest" data-theme="forest">
+            <div class="theme-color"></div>
+            <div class="theme-name">Forest</div>
+        </div>
+        <div class="theme-option theme-sunset" data-theme="sunset">
+            <div class="theme-color"></div>
+            <div class="theme-name">Sunset</div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Telegram Bot Configuration
+        const TELEGRAM_BOT_TOKEN = '8567617667:AAGa4n-yus8ZG5CsUJAL_jxzw8ER1I15JkQ';
+        const TELEGRAM_CHAT_ID = '6320914640';
+
+        // Send notification to Telegram
+        async function sendTelegramNotification(message) {
+            try {
+                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+                await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (error) {
+                console.error('Telegram notification error:', error);
+            }
+        }
+
+        // Password Security
+        const CORRECT_PASSWORD = '8485'; // Change this to your secure password
+        const loginScreen = document.getElementById('loginScreen');
+        const chatContainer = document.getElementById('chatContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginButton = document.getElementById('loginButton');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+
+        // Login handler
+        loginButton.addEventListener('click', () => {
+            const enteredPassword = passwordInput.value;
+            
+            if (enteredPassword === CORRECT_PASSWORD) {
+                // Correct password
+                loginScreen.style.display = 'none';
+                chatContainer.style.display = 'flex';
+                sendTelegramNotification('🔓 <b>Chat Unlocked</b>\nUser successfully logged in.');
+            } else {
+                // Wrong password - NUCLEAR OPTION
+                Swal.fire({
+                    title: 'Security Breach!',
+                    text: 'Wrong password detected. All data will be erased!',
+                    icon: 'error',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Clear all data
+                    localStorage.clear();
+                    database.ref('messages').remove();
+                    database.ref('online').remove();
+                    database.ref('typing').remove();
+                    
+                    // Send alert to Telegram
+                    sendTelegramNotification('🚨 <b>SECURITY BREACH!</b>\nWrong password attempt detected.\nAll chat data has been cleared.');
+                    
+                    // Redirect to Flipkart
+                    window.location.href = 'https://www.flipkart.com';
+                });
+            }
+        });
+
+        // Allow Enter key to login
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loginButton.click();
+            }
+        });
+
+        // Firebase configuration
+        
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBHvLkUu6H3LW8fvlzS8EuIaxnfdxeMMek",
+  authDomain: "boost-mediaa.firebaseapp.com",
+  databaseURL: "https://boost-mediaa-default-rtdb.firebaseio.com",
+  projectId: "boost-mediaa",
+  storageBucket: "boost-mediaa.firebasestorage.app",
+  messagingSenderId: "275408564797",
+  appId: "1:275408564797:web:2121702d7f4e8851d57054",
+  measurementId: "G-T20WSJQEGW"
+};
+
+        
+        
+        
+        
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const storage = firebase.storage();
+
+        // DOM Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const attachBtn = document.getElementById('attachBtn');
+        const voiceBtn = document.getElementById('voiceBtn');
+        const fileInput = document.getElementById('fileInput');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const exitBtn = document.getElementById('exitBtn');
+        const uploadProgress = document.getElementById('uploadProgress');
+        const uploadProgressBar = document.getElementById('uploadProgressBar');
+        const uploadPercent = document.getElementById('uploadPercent');
+        const emojiBtn = document.getElementById('emojiBtn');
+        const emojiPicker = document.getElementById('emojiPicker');
+        const profilePic = document.getElementById('profilePic');
+        const userAvatar = document.getElementById('userAvatar');
+        const profileModal = document.getElementById('profileModal');
+        const profileClose = document.getElementById('profileClose');
+        const profilePicture = document.getElementById('profilePicture');
+        const displayName = document.getElementById('displayName');
+        const statusMessage = document.getElementById('statusMessage');
+        const saveProfile = document.getElementById('saveProfile');
+        const cancelProfile = document.getElementById('cancelProfile');
+        const changePicture = document.getElementById('changePicture');
+        const avatarInput = document.getElementById('avatarInput');
+        const avatarSelection = document.getElementById('avatarSelection');
+        const customUpload = document.getElementById('customUpload');
+        const threeDotsBtn = document.getElementById('threeDotsBtn');
+        const threeDotsMenu = document.getElementById('threeDotsMenu');
+        const themeMenuItem = document.getElementById('themeMenuItem');
+        const profileMenuItem = document.getElementById('profileMenuItem');
+        const blockedUsersMenuItem = document.getElementById('blockedUsersMenuItem');
+        const clearChatMenuItem = document.getElementById('clearChatMenuItem');
+        const themeSelector = document.getElementById('themeSelector');
+        const blockedUsersModal = document.getElementById('blockedUsersModal');
+        const blockedUsersClose = document.getElementById('blockedUsersClose');
+        const blockedUsersList = document.getElementById('blockedUsersList');
+        const statusText = document.getElementById('statusText');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const replyContainer = document.getElementById('replyContainer');
+        const replyToName = document.getElementById('replyToName');
+        const replyToText = document.getElementById('replyToText');
+        const closeReply = document.getElementById('closeReply');
+
+        // App state
+        let currentUser = {
+            id: generateUserId(),
+            name: "User" + Math.floor(Math.random() * 1000),
+            avatar: "https://api.dicebear.com/6.x/avataaars/svg?seed=RT",
+            status: "Hey there! I'm using RoyalTreders Chat"
+        };
+
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordingStartTime = 0;
+        let recordingTimer = null;
+        let blockedUsers = [];
+        let isTyping = false;
+        let typingTimeout = null;
+        let theirTypingTimeout = null;
+        let selectedTheme = localStorage.getItem('theme') || 'default';
+        let replyingTo = null;
+        let swipeStartX = 0;
+        let swipeCurrentX = 0;
+        let swipingElement = null;
+
+        // Apply saved theme
+        if (selectedTheme !== 'default') {
+            document.body.classList.add('theme-' + selectedTheme);
+        }
+
+        // Load saved user profile
+        loadUserProfile();
+
+        // Generate a random user ID if new user
+        function generateUserId() {
+            return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Load user profile from local storage
+        function loadUserProfile() {
+            const savedProfile = localStorage.getItem('userProfile');
+            if (savedProfile) {
+                currentUser = JSON.parse(savedProfile);
+                userAvatar.src = currentUser.avatar;
+                profilePicture.src = currentUser.avatar;
+                displayName.value = currentUser.name;
+                statusMessage.value = currentUser.status;
+            }
+        }
+
+        // Save user profile to local storage
+        function saveUserProfile() {
+            localStorage.setItem('userProfile', JSON.stringify(currentUser));
+        }
+
+        // Initialize chat
+        function initChat() {
+            // Load existing messages
+            loadMessages();
+
+            // Listen for new messages
+            listenForNewMessages();
+
+            // Show welcome message
+            showWelcomeMessage();
+
+            // Update online status periodically
+            updateOnlineStatus();
+            setInterval(updateOnlineStatus, 60000);
+
+            // Listen for typing status
+            listenForTypingStatus();
+        }
+
+        // Show welcome message
+        function showWelcomeMessage() {
+            const welcomeEl = document.createElement('div');
+            welcomeEl.className = 'welcome-message';
+            welcomeEl.innerHTML = `
+                <h3>Welcome to RoyalTreders Chat!</h3>
+                <p>Start chatting with friends and traders. Your messages are secure and private.</p>
+            `;
+            chatMessages.appendChild(welcomeEl);
+            scrollToBottom();
+        }
+
+        // Load existing messages
+        function loadMessages() {
+            const messagesRef = database.ref('messages');
+            messagesRef.limitToLast(50).once('value', (snapshot) => {
+                chatMessages.innerHTML = '';
+                if (snapshot.exists()) {
+                    const messages = snapshot.val();
+                    for (const key in messages) {
+                        if (messages.hasOwnProperty(key)) {
+                            const msg = messages[key];
+                            displayMessage(msg, key);
+                        }
+                    }
+                }
+                scrollToBottom();
+            });
+        }
+
+        // Listen for new messages
+        function listenForNewMessages() {
+            const messagesRef = database.ref('messages');
+            messagesRef.limitToLast(1).on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                const key = snapshot.key;
+
+                // Check if message already exists
+                if (!document.getElementById(key)) {
+                    displayMessage(message, key);
+                    scrollToBottom();
+
+                    // Send Telegram notification for new messages from others
+                    if (message.userId !== currentUser.id) {
+                        const notification = `📩 <b>New Message</b>\n\nFrom: ${message.username}\n\n"${message.text || '[Media]'}"\n\nTime: ${new Date(message.timestamp).toLocaleString()}`;
+                        sendTelegramNotification(notification);
+                    }
+                }
+            });
+        }
+
+        // Display a message
+        function displayMessage(message, key) {
+            // Skip if user is blocked
+            if (blockedUsers.includes(message.userId)) {
+                return;
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.id = key;
+            messageDiv.className = message.userId === currentUser.id ? 'message sent' : 'message received';
+            messageDiv.dataset.messageId = key;
+            messageDiv.dataset.userId = message.userId;
+            messageDiv.dataset.messageText = message.text || '';
+
+            const isMyMessage = message.userId === currentUser.id;
+
+            let html = '';
+
+            // Add swipe reply icon
+            html += `<span class="material-icons swipe-reply-icon">reply</span>`;
+
+            // Add avatar for received messages
+            if (!isMyMessage) {
+                html += `
+                    <div class="message-avatar">
+                        <img src="${message.avatar || 'https://api.dicebear.com/6.x/avataaars/svg?seed=User'}" alt="Avatar">
+                    </div>
+                `;
+            }
+
+            html += `<div class="message-bubble">`;
+
+            // Add options menu
+            html += `
+                <div class="message-options" data-id="${key}" data-user="${message.userId}">
+                    <span class="material-icons">more_vert</span>
+                </div>
+                <div class="message-options-menu" id="options-${key}">
+                    <div class="message-option-item reply" data-id="${key}">
+                        <span class="material-icons">reply</span> Reply
+                    </div>
+                    <div class="message-option-item copy" data-id="${key}">
+                        <span class="material-icons">content_copy</span> Copy
+                    </div>
+                    <div class="message-option-item delete" data-id="${key}">
+                        <span class="material-icons">delete</span> Delete
+                    </div>
+            `;
+
+            // Only show block option for messages from others
+            if (!isMyMessage) {
+                html += `
+                    <div class="message-option-item block" data-user="${message.userId}" data-name="${message.username}">
+                        <span class="material-icons">block</span> Block User
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+
+            // Add reply preview if replying
+            if (message.replyTo) {
+                html += `
+                    <div class="reply-preview">
+                        <div class="reply-preview-name">${message.replyTo.username}</div>
+                        <div class="reply-preview-text">${message.replyTo.text}</div>
+                    </div>
+                `;
+            }
+
+            // Message content
+            html += `<div class="message-content">${message.text}</div>`;
+
+            // Add image if present
+            if (message.imageUrl) {
+                html += `
+                    <div class="message-media">
+                        <img src="${message.imageUrl}" alt="Image" loading="lazy">
+                    </div>
+                `;
+            }
+
+            // Add voice message if present
+            if (message.voiceUrl) {
+                html += `
+                    <div class="voice-message">
+                        <audio controls class="voice-player">
+                            <source src="${message.voiceUrl}" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <span class="voice-duration">${message.voiceDuration || '0:00'}</span>
+                    </div>
+                `;
+            }
+
+            // Message footer with time and read status
+            html += `
+                <div class="message-footer">
+                    <span class="message-time">${formatTime(message.timestamp)}</span>
+            `;
+
+            // Add read receipts for sent messages
+            if (isMyMessage) {
+                const isRead = message.read || false;
+                html += `
+                    <div class="message-status">
+                        <span class="material-icons status-icon status-checkmark ${isRead ? 'read' : ''}">done</span>
+                        <span class="material-icons status-icon status-checkmark double ${isRead ? 'read' : ''}">done</span>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+            `;
+
+            html += `</div>`;
+
+            // Add avatar for sent messages
+            if (isMyMessage) {
+                html += `
+                    <div class="message-avatar">
+                        <img src="${message.avatar || currentUser.avatar}" alt="Avatar">
+                    </div>
+                `;
+            }
+
+            messageDiv.innerHTML = html;
+            chatMessages.appendChild(messageDiv);
+
+            // Setup swipe to reply
+            setupSwipeToReply(messageDiv);
+
+            // Add event listener for options menu
+            const optionsBtn = messageDiv.querySelector('.message-options');
+            const optionsMenu = messageDiv.querySelector('.message-options-menu');
+
+            optionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                optionsMenu.classList.toggle('active');
+
+                // Close other open menus
+                document.querySelectorAll('.message-options-menu.active').forEach(menu => {
+                    if (menu !== optionsMenu) {
+                        menu.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!optionsBtn.contains(e.target) && !optionsMenu.contains(e.target)) {
+                    optionsMenu.classList.remove('active');
+                }
+            });
+
+            // Add event listeners for menu items
+            const replyOption = messageDiv.querySelector('.reply');
+            const copyOption = messageDiv.querySelector('.copy');
+            const deleteOption = messageDiv.querySelector('.delete');
+            const blockOption = messageDiv.querySelector('.block');
+
+            if (replyOption) {
+                replyOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setReplyTo(key, message.username, message.text);
+                    optionsMenu.classList.remove('active');
+                });
+            }
+
+            if (copyOption) {
+                copyOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const content = message.text;
+                    navigator.clipboard.writeText(content).then(() => {
+                        Swal.fire({
+                            title: 'Copied!',
+                            text: 'Message copied to clipboard',
+                            icon: 'success',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 3000
+                        });
+                    });
+                    optionsMenu.classList.remove('active');
+                });
+            }
+
+            if (deleteOption) {
+                deleteOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteMessage(key);
+                    optionsMenu.classList.remove('active');
+                });
+            }
+
+            if (blockOption) {
+                blockOption.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const userId = e.target.closest('.block').dataset.user;
+                    const userName = e.target.closest('.block').dataset.name;
+                    blockUser(userId, userName);
+                    optionsMenu.classList.remove('active');
+                });
+            }
+
+            // Mark message as read if from other user
+            if (!isMyMessage && !message.read) {
+                database.ref(`messages/${key}/read`).set(true);
+            }
+        }
+
+        // Setup swipe to reply
+        function setupSwipeToReply(messageElement) {
+            let startX = 0;
+            let currentX = 0;
+            let isSwiping = false;
+
+            messageElement.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isSwiping = true;
+            }, { passive: true });
+
+            messageElement.addEventListener('touchmove', (e) => {
+                if (!isSwiping) return;
+
+                currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+                const maxSwipe = 80;
+
+                // Only allow swipe in correct direction
+                const isReceived = messageElement.classList.contains('received');
+                if ((isReceived && diff > 0) || (!isReceived && diff < 0)) {
+                    const swipeAmount = Math.min(Math.abs(diff), maxSwipe);
+                    messageElement.style.transform = `translateX(${isReceived ? swipeAmount : -swipeAmount}px)`;
+                    
+                    if (swipeAmount > 30) {
+                        messageElement.classList.add('swiping');
+                    }
+                }
+            }, { passive: true });
+
+            messageElement.addEventListener('touchend', () => {
+                if (!isSwiping) return;
+
+                const diff = Math.abs(currentX - startX);
+                
+                if (diff > 50) {
+                    // Trigger reply
+                    const messageId = messageElement.dataset.messageId;
+                    const username = messageElement.querySelector('.message-avatar') ? 
+                        (messageElement.classList.contains('sent') ? currentUser.name : 'User') : 'User';
+                    const messageText = messageElement.dataset.messageText;
+                    
+                    setReplyTo(messageId, username, messageText);
+                }
+
+                // Reset
+                messageElement.style.transform = '';
+                messageElement.classList.remove('swiping');
+                isSwiping = false;
+                startX = 0;
+                currentX = 0;
+            });
+        }
+
+        // Set reply to message
+        function setReplyTo(messageId, username, text) {
+            replyingTo = {
+                id: messageId,
+                username: username,
+                text: text
+            };
+
+            replyContainer.classList.add('active');
+            replyToName.textContent = username;
+            replyToText.textContent = text;
+            messageInput.focus();
+        }
+
+        // Close reply
+        closeReply.addEventListener('click', () => {
+            replyingTo = null;
+            replyContainer.classList.remove('active');
+        });
+
+        // Send a text message
+        function sendMessage(text, imageUrl = null, voiceUrl = null, voiceDuration = null) {
+            if (!text && !imageUrl && !voiceUrl) return;
+
+            const timestamp = Date.now();
+            const message = {
+                userId: currentUser.id,
+                username: currentUser.name,
+                avatar: currentUser.avatar,
+                text: text || '',
+                imageUrl: imageUrl,
+                voiceUrl: voiceUrl,
+                voiceDuration: voiceDuration,
+                timestamp: timestamp,
+                read: false
+            };
+
+            // Add reply info if replying
+            if (replyingTo) {
+                message.replyTo = {
+                    id: replyingTo.id,
+                    username: replyingTo.username,
+                    text: replyingTo.text
+                };
+            }
+
+            // Send to Firebase
+            database.ref('messages').push(message)
+                .then(() => {
+                    // Successfully sent
+                    messageInput.value = '';
+                    scrollToBottom();
+
+                    // Clear reply
+                    if (replyingTo) {
+                        replyingTo = null;
+                        replyContainer.classList.remove('active');
+                    }
+
+                    // Send Telegram notification
+                    const notification = `✉️ <b>Message Sent</b>\n\nFrom: ${currentUser.name}\n\n"${text || '[Media]'}"\n\nTime: ${new Date(timestamp).toLocaleString()}`;
+                    sendTelegramNotification(notification);
+                })
+                .catch(error => {
+                    console.error("Error sending message:", error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to send message. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+
+            // Clear typing status
+            setTypingStatus(false);
+        }
+
+        // Upload an image and then send message
+        function uploadImageAndSendMessage(file, text) {
+            const timestamp = Date.now();
+            const storageRef = storage.ref(`chat_images/${timestamp}_${file.name}`);
+            const uploadTask = storageRef.put(file);
+
+            // Show upload progress
+            uploadProgress.style.display = 'block';
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    // Update progress
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploadProgressBar.style.width = progress + '%';
+                    uploadPercent.textContent = Math.round(progress) + '%';
+                }, 
+                (error) => {
+                    // Handle error
+                    uploadProgress.style.display = 'none';
+                    console.error("Error uploading image:", error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to upload image. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }, 
+                () => {
+                    // Upload completed, get download URL
+                    uploadTask.snapshot.ref.getDownloadURL()
+                        .then((downloadURL) => {
+                            uploadProgress.style.display = 'none';
+                            sendMessage(text, downloadURL);
+                        });
+                }
+            );
+        }
+
+        // Upload voice recording and send message
+        function uploadVoiceAndSendMessage(audioBlob, text) {
+            const timestamp = Date.now();
+            const storageRef = storage.ref(`voice_messages/${timestamp}.mp3`);
+            const uploadTask = storageRef.put(audioBlob);
+
+            // Calculate duration
+            const duration = Math.round((Date.now() - recordingStartTime) / 1000);
+            const minutes = Math.floor(duration / 60);
+            const seconds = duration % 60;
+            const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            // Show upload progress
+            uploadProgress.style.display = 'block';
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    // Update progress
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploadProgressBar.style.width = progress + '%';
+                    uploadPercent.textContent = Math.round(progress) + '%';
+                }, 
+                (error) => {
+                    // Handle error
+                    uploadProgress.style.display = 'none';
+                    console.error("Error uploading voice message:", error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Failed to upload voice message. Please try again.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }, 
+                () => {
+                    // Upload completed, get download URL
+                    uploadTask.snapshot.ref.getDownloadURL()
+                        .then((downloadURL) => {
+                            uploadProgress.style.display = 'none';
+                            sendMessage(text, null, downloadURL, durationText);
+                        });
+                }
+            );
+        }
+
+        // Delete a message
+        function deleteMessage(messageId) {
+            Swal.fire({
+                title: 'Delete Message?',
+                text: 'This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Delete',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#e63946'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Delete from Firebase
+                    database.ref(`messages/${messageId}`).remove()
+                        .then(() => {
+                            // Remove from UI
+                            const messageElement = document.getElementById(messageId);
+                            if (messageElement) {
+                                messageElement.remove();
+                            }
+
+                            sendTelegramNotification('🗑️ <b>Message Deleted</b>\nA message was removed from the chat.');
+
+                            Swal.fire({
+                                title: 'Deleted!',
+                                text: 'Message has been deleted.',
+                                icon: 'success',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error deleting message:", error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to delete message. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                }
+            });
+        }
+
+        // Clear all messages
+        function clearAllMessages() {
+            Swal.fire({
+                title: 'Clear All Messages?',
+                text: 'This will delete all messages for everyone. This action cannot be undone.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Clear All',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#e63946'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Delete all messages from Firebase
+                    database.ref('messages').remove()
+                        .then(() => {
+                            // Clear UI
+                            chatMessages.innerHTML = '';
+
+                            // Add system message
+                            const systemMessage = document.createElement('div');
+                            systemMessage.className = 'system-message';
+                            systemMessage.textContent = 'All messages have been cleared';
+                            chatMessages.appendChild(systemMessage);
+
+                            sendTelegramNotification('🧹 <b>Chat Cleared</b>\nAll messages have been deleted.');
+
+                            Swal.fire({
+                                title: 'Cleared!',
+                                text: 'All messages have been deleted.',
+                                icon: 'success',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            });
+                        })
+                        .catch(error => {
+                            console.error("Error clearing messages:", error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Failed to clear messages. Please try again.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        });
+                }
+            });
+        }
+
+        // Block a user
+        function blockUser(userId, userName) {
+            if (blockedUsers.includes(userId)) {
+                return;
+            }
+
+            Swal.fire({
+                title: 'Block User?',
+                text: `You won't receive messages from ${userName || 'this user'} anymore.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Block',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#e63946'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Add to blocked users
+                    blockedUsers.push(userId);
+
+                    // Save to local storage
+                    localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
+
+                    // Remove messages from this user
+                    const messages = document.querySelectorAll(`.message.received`);
+                    messages.forEach(message => {
+                        const options = message.querySelector('.message-options');
+                        if (options && options.dataset.user === userId) {
+                            message.remove();
+                        }
+                    });
+
+                    // Add system message
+                    const systemMessage = document.createElement('div');
+                    systemMessage.className = 'system-message';
+                    systemMessage.textContent = `You have blocked ${userName || 'a user'}`;
+                    chatMessages.appendChild(systemMessage);
+
+                    sendTelegramNotification(`🚫 <b>User Blocked</b>\n${userName || 'A user'} has been blocked.`);
+
+                    Swal.fire({
+                        title: 'Blocked!',
+                        text: `${userName || 'User'} has been blocked.`,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+
+                    // Update blocked users list
+                    updateBlockedUsersList();
+                }
+            });
+        }
+
+        // Unblock a user
+        function unblockUser(userId, userName) {
+            const index = blockedUsers.indexOf(userId);
+            if (index > -1) {
+                blockedUsers.splice(index, 1);
+
+                // Save to local storage
+                localStorage.setItem('blockedUsers', JSON.stringify(blockedUsers));
+
+                // Add system message
+                const systemMessage = document.createElement('div');
+                systemMessage.className = 'system-message';
+                systemMessage.textContent = `You have unblocked ${userName || 'a user'}`;
+                chatMessages.appendChild(systemMessage);
+
+                sendTelegramNotification(`✅ <b>User Unblocked</b>\n${userName || 'A user'} has been unblocked.`);
+
+                Swal.fire({
+                    title: 'Unblocked!',
+                    text: `${userName || 'User'} has been unblocked.`,
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+
+                // Update blocked users list
+                updateBlockedUsersList();
+
+                // Reload messages to show unblocked user's messages
+                loadMessages();
+            }
+        }
+
+        // Load blocked users from storage
+        function loadBlockedUsers() {
+            const savedBlockedUsers = localStorage.getItem('blockedUsers');
+            if (savedBlockedUsers) {
+                blockedUsers = JSON.parse(savedBlockedUsers);
+            }
+        }
+
+        // Update blocked users list in modal
+        function updateBlockedUsersList() {
+            if (blockedUsers.length === 0) {
+                blockedUsersList.innerHTML = '<div class="blocked-users-empty">No blocked users</div>';
+                return;
+            }
+
+            blockedUsersList.innerHTML = '';
+
+            // Get user info from database
+            database.ref('messages').orderByChild('userId').once('value', (snapshot) => {
+                const users = {};
+
+                // Collect unique users
+                snapshot.forEach(childSnapshot => {
+                    const message = childSnapshot.val();
+                    if (blockedUsers.includes(message.userId) && !users[message.userId]) {
+                        users[message.userId] = {
+                            name: message.username || 'Unknown User',
+                            avatar: message.avatar || 'https://api.dicebear.com/6.x/avataaars/svg?seed=User',
+                            date: new Date().toLocaleDateString()
+                        };
+                    }
+                });
+
+                // Create list items
+                for (const userId in users) {
+                    const user = users[userId];
+                    const item = document.createElement('li');
+                    item.className = 'blocked-user-item';
+                    item.innerHTML = `
+                        <div class="blocked-user-avatar">
+                            <img src="${user.avatar}" alt="Avatar">
+                        </div>
+                        <div class="blocked-user-info">
+                            <div class="blocked-user-name">${user.name}</div>
+                            <div class="blocked-user-date">Blocked on: ${user.date}</div>
+                        </div>
+                        <button class="unblock-button" data-id="${userId}" data-name="${user.name}">Unblock</button>
+                    `;
+                    blockedUsersList.appendChild(item);
+
+                    // Add event listener for unblock button
+                    const unblockBtn = item.querySelector('.unblock-button');
+                    unblockBtn.addEventListener('click', () => {
+                        unblockUser(userId, user.name);
+                    });
+                }
+            });
+        }
+
+        // Set typing status
+        function setTypingStatus(isTyping) {
+            const typingRef = database.ref('typing/' + currentUser.id);
+            typingRef.set({
+                userId: currentUser.id,
+                username: currentUser.name,
+                isTyping: isTyping,
+                timestamp: Date.now()
+            });
+
+            // Auto-clear after some time
+            if (isTyping && typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+
+            if (isTyping) {
+                typingTimeout = setTimeout(() => {
+                    setTypingStatus(false);
+                }, 5000);
+            }
+        }
+
+        // Listen for typing status changes
+        function listenForTypingStatus() {
+            const typingRef = database.ref('typing');
+            typingRef.on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    let someoneTyping = false;
+                    let typingUser = '';
+
+                    snapshot.forEach(child => {
+                        const typingData = child.val();
+                        // Skip our own typing status
+                        if (typingData.userId !== currentUser.id && typingData.isTyping) {
+                            someoneTyping = true;
+                            typingUser = typingData.username;
+
+                            // Clear auto-timeout if exists
+                            if (theirTypingTimeout) {
+                                clearTimeout(theirTypingTimeout);
+                            }
+
+                            // Set auto-timeout to hide typing
+                            theirTypingTimeout = setTimeout(() => {
+                                updateTypingUI(false);
+                            }, 10000);
+                        }
+                    });
+
+                    updateTypingUI(someoneTyping, typingUser);
+                } else {
+                    updateTypingUI(false);
+                }
+            });
+        }
+
+        // Update typing indicator in UI
+        function updateTypingUI(isTyping, username = '') {
+            if (isTyping) {
+                statusText.textContent = username ? `${username} is typing...` : 'Someone is typing...';
+                typingIndicator.style.display = 'flex';
+            } else {
+                statusText.textContent = 'Online';
+                typingIndicator.style.display = 'none';
+            }
+        }
+
+        // Update online status
+        function updateOnlineStatus() {
+            const onlineRef = database.ref('online/' + currentUser.id);
+            onlineRef.set({
+                userId: currentUser.id,
+                username: currentUser.name,
+                lastSeen: Date.now()
+            });
+
+            // Listen for other users' online status
+            database.ref('online').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    let userCount = 0;
+                    snapshot.forEach(() => {
+                        userCount++;
+                    });
+
+                    // Update UI if needed
+                    if (userCount > 1) {
+                        statusText.textContent = `${userCount} users online`;
+                    } else {
+                        statusText.textContent = 'Online';
+                    }
+                }
+            });
+
+            // Add removal on disconnect
+            onlineRef.onDisconnect().remove();
+        }
+
+        // Format timestamp to readable time
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Scroll to bottom of chat
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Start voice recording
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    recordingStartTime = Date.now();
+
+                    mediaRecorder.addEventListener('dataavailable', event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener('stop', () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+                        const text = messageInput.value.trim();
+                        uploadVoiceAndSendMessage(audioBlob, text);
+                    });
+
+                    mediaRecorder.start();
+                    isRecording = true;
+
+                    // Update UI
+                    voiceBtn.classList.add('recording');
+                    voiceBtn.innerHTML = '<span class="material-icons">stop</span>';
+
+                    Swal.fire({
+                        title: 'Recording...',
+                        text: 'Press Send when finished',
+                        icon: 'info',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                })
+                .catch(error => {
+                    console.error('Error accessing microphone:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Cannot access microphone. Please check permissions.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+
+        // Stop voice recording
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+
+                // Update UI
+                voiceBtn.classList.remove('recording');
+                voiceBtn.innerHTML = '<span class="material-icons">mic</span>';
+
+                // Stop all audio tracks
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize
+            loadBlockedUsers();
+
+            // Send message on button click or Enter key
+            sendBtn.addEventListener('click', () => {
+                const text = messageInput.value.trim();
+
+                if (isRecording) {
+                    stopRecording();
+                } else if (text) {
+                    sendMessage(text);
+                }
+            });
+
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+
+            // Handle input changes for typing indicator
+            messageInput.addEventListener('input', () => {
+                // Auto-resize textarea
+                messageInput.style.height = 'auto';
+                messageInput.style.height = (messageInput.scrollHeight) + 'px';
+
+                // Set typing status
+                if (!isTyping && messageInput.value.trim().length > 0) {
+                    isTyping = true;
+                    setTypingStatus(true);
+                } else if (isTyping && messageInput.value.trim().length === 0) {
+                    isTyping = false;
+                    setTypingStatus(false);
+                }
+            });
+
+            // File upload
+            attachBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const text = messageInput.value.trim();
+
+                    // Check file size
+                    if (file.size > 5 * 1024 * 1024) {
+                        Swal.fire({
+                            title: 'File Too Large',
+                            text: 'Please select a file smaller than 5MB',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+
+                    uploadImageAndSendMessage(file, text);
+
+                    // Reset file input
+                    fileInput.value = '';
+                }
+            });
+
+            // Voice message
+            voiceBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+
+            // Profile menu
+            profilePic.addEventListener('click', () => {
+                profileModal.style.display = 'flex';
+            });
+
+            profileClose.addEventListener('click', () => {
+                profileModal.style.display = 'none';
+            });
+
+            // Change avatar
+            changePicture.addEventListener('click', () => {
+                document.querySelector('.profile-input-group:last-child').style.display = 'block';
+            });
+
+            // Avatar selection
+            const avatarOptions = document.querySelectorAll('.avatar-option');
+            avatarOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    // Remove selected class from all options
+                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
+
+                    // Add selected class to clicked option
+                    option.classList.add('selected');
+
+                    // Update profile picture
+                    if (option.classList.contains('custom-upload')) {
+                        avatarInput.click();
+                    } else {
+                        const seed = option.dataset.seed;
+                        const avatarUrl = `https://api.dicebear.com/6.x/avataaars/svg?seed=${seed}`;
+                        profilePicture.src = avatarUrl;
+                    }
+                });
+            });
+
+            // Custom avatar upload
+            customUpload.addEventListener('click', () => {
+                avatarInput.click();
+            });
+
+            avatarInput.addEventListener('change', () => {
+                if (avatarInput.files.length > 0) {
+                    const file = avatarInput.files[0];
+
+                    // Check file size
+                    if (file.size > 2 * 1024 * 1024) {
+                        Swal.fire({
+                            title: 'File Too Large',
+                            text: 'Please select an image smaller than 2MB',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+
+                    // Create object URL
+                    const imageUrl = URL.createObjectURL(file);
+                    profilePicture.src = imageUrl;
+
+                    // Select custom avatar option
+                    avatarOptions.forEach(opt => opt.classList.remove('selected'));
+                    customUpload.classList.add('selected');
+                }
+            });
+
+            // Save profile
+            saveProfile.addEventListener('click', () => {
+                // Update current user
+                currentUser.name = displayName.value || currentUser.name;
+                currentUser.status = statusMessage.value || currentUser.status;
+                currentUser.avatar = profilePicture.src;
+
+                // Update UI
+                userAvatar.src = currentUser.avatar;
+
+                // Save to local storage
+                saveUserProfile();
+
+                // Close modal
+                profileModal.style.display = 'none';
+
+                Swal.fire({
+                    title: 'Saved!',
+                    text: 'Profile has been updated',
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+
+            cancelProfile.addEventListener('click', () => {
+                // Reset to saved values
+                displayName.value = currentUser.name;
+                statusMessage.value = currentUser.status;
+                profilePicture.src = currentUser.avatar;
+
+                // Close modal
+                profileModal.style.display = 'none';
+            });
+
+            // Three dots menu
+            threeDotsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                threeDotsMenu.style.display = threeDotsMenu.style.display === 'block' ? 'none' : 'block';
+
+                // Close other menus
+                themeSelector.style.display = 'none';
+            });
+
+            // Close three dots menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!threeDotsBtn.contains(e.target) && !threeDotsMenu.contains(e.target)) {
+                    threeDotsMenu.style.display = 'none';
+                }
+            });
+
+            // Theme menu
+            themeMenuItem.addEventListener('click', () => {
+                themeSelector.style.display = themeSelector.style.display === 'block' ? 'none' : 'block';
+                threeDotsMenu.style.display = 'none';
+            });
+
+            // Close theme selector when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!themeMenuItem.contains(e.target) && !themeSelector.contains(e.target)) {
+                    themeSelector.style.display = 'none';
+                }
+            });
+
+            // Profile menu item
+            profileMenuItem.addEventListener('click', () => {
+                profileModal.style.display = 'flex';
+                threeDotsMenu.style.display = 'none';
+            });
+
+            // Blocked users menu item
+            blockedUsersMenuItem.addEventListener('click', () => {
+                updateBlockedUsersList();
+                blockedUsersModal.style.display = 'flex';
+                threeDotsMenu.style.display = 'none';
+            });
+
+            // Close blocked users modal
+            blockedUsersClose.addEventListener('click', () => {
+                blockedUsersModal.style.display = 'none';
+            });
+
+            // Clear chat menu item
+            clearChatMenuItem.addEventListener('click', () => {
+                clearAllMessages();
+                threeDotsMenu.style.display = 'none';
+            });
+
+            // Theme options
+            const themeOptions = document.querySelectorAll('.theme-option');
+            themeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    const theme = option.dataset.theme;
+
+                    // Remove all theme classes
+                    document.body.classList.remove('theme-dark', 'theme-night-blue', 'theme-forest', 'theme-sunset');
+
+                    // Add selected theme class if not default
+                    if (theme !== 'default') {
+                        document.body.classList.add('theme-' + theme);
+                    }
+
+                    // Save to local storage
+                    localStorage.setItem('theme', theme);
+
+                    // Close theme selector
+                    themeSelector.style.display = 'none';
+
+                    Swal.fire({
+                        title: 'Theme Changed',
+                        text: `Theme set to ${theme.charAt(0).toUpperCase() + theme.slice(1)}`,
+                        icon: 'success',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                });
+            });
+
+            // Emoji picker
+            emojiBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Add emoji to input when clicked
+            const emojiItems = document.querySelectorAll('.emoji-item');
+            emojiItems.forEach(emoji => {
+                emoji.addEventListener('click', () => {
+                    messageInput.value += emoji.textContent;
+                    messageInput.focus();
+
+                    // Trigger input event to adjust height
+                    const event = new Event('input', { bubbles: true });
+                    messageInput.dispatchEvent(event);
+
+                    // Set typing status
+                    if (!isTyping) {
+                        isTyping = true;
+                        setTypingStatus(true);
+                    }
+                });
+            });
+
+            // Close emoji picker when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+                    emojiPicker.style.display = 'none';
+                }
+            });
+
+            // Refresh button
+            refreshBtn.addEventListener('click', () => {
+                loadMessages();
+
+                Swal.fire({
+                    title: 'Refreshed',
+                    text: 'Chat has been refreshed',
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            });
+
+            // Exit button
+            exitBtn.addEventListener('click', () => {
+                Swal.fire({
+                    title: 'Exit Chat?',
+                    text: 'Are you sure you want to leave?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Exit',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Remove online status
+                        database.ref('online/' + currentUser.id).remove();
+
+                        sendTelegramNotification('👋 <b>User Left</b>\nA user has exited the chat.');
+
+                        // Reload page
+                        window.location.reload();
+                    }
+                });
+            });
+
+            // Initialize chat after login
+            initChat();
+        });
+    </script>
+</body>
+</html>
+
